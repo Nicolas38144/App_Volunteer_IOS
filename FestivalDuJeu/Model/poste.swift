@@ -12,4 +12,5 @@ struct Poste: Codable, Identifiable {
     var intitule: String
     var capacite: String
     var desc : String
+    var referent : String
 }

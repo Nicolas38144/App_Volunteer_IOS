@@ -3,6 +3,7 @@ import SwiftUI
 struct ConsultDayView: View {
     @Binding var jour: String
     @EnvironmentObject private var planningViewModel: PlanningViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
     
     let horaires = ["9h-11h", "11h-14h", "14h-17h", "17h-20h", "20h-22h"]
     
@@ -36,6 +37,14 @@ struct ConsultDayView: View {
                             .font(.title3)
                         Text(planningViewModel.postes[indexP].desc)
                             .foregroundStyle(Color(.systemGray))
+                        HStack {
+                            Text("Référent :")
+                                .foregroundStyle(Color(.systemGray))
+                            Text(authViewModel.getUserByID(id: planningViewModel.postes[indexP].referent)?.prenom ?? "")
+                                .foregroundStyle(Color(.systemGray))
+                            Text(authViewModel.getUserByID(id: planningViewModel.postes[indexP].referent)?.nom ?? "")
+                                .foregroundStyle(Color(.systemGray))
+                        }
                     }
                     .padding()
                     .frame(maxWidth: .infinity)
