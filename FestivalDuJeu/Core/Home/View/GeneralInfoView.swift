@@ -80,6 +80,13 @@ struct GeneralInfoView: View {
                 .padding(.vertical, 20)
             }
         }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color.white)
+        .cornerRadius(10)
+        .shadow(radius: 3)
+        .padding(.horizontal)
+        .padding(.bottom, 10)
                 
         Section {
             VStack {
@@ -100,6 +107,13 @@ struct GeneralInfoView: View {
             }
             .frame(maxWidth: .infinity)
         }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color.white)
+        .cornerRadius(10)
+        .shadow(radius: 3)
+        .padding(.horizontal)
+        .padding(.bottom, 10)
     }
 }
 

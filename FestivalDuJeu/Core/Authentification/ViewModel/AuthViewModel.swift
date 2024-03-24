@@ -98,4 +98,10 @@ class AuthViewModel: ObservableObject {
         self.currentuser = try? snapshot.data(as: User.self)
         //print("DEBUG: current user is \(self.currentuser)")
     }
+    
+    
+    func getUid() -> String {
+        guard let uid = Auth.auth().currentUser?.uid else { return "" }
+        return uid
+    }
 }

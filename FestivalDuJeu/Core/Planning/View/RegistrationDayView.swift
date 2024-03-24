@@ -10,25 +10,77 @@ import SwiftUI
 struct RegistrationDayView: View {
     @Binding var jour: String
     @EnvironmentObject private var planningViewModel: PlanningViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
     
     let horaires = ["9h-11h", "11h-14h", "14h-17h", "17h-20h", "20h-22h"]
     
     var body: some View {
         ScrollView {
-            ForEach(0..<planningViewModel.postes.count, id: \.self) { indexP in
+            Spacer()
+            ForEach(0..<self.horaires.count, id: \.self) { indexH in
                 VStack {
-                    Text(planningViewModel.postes[indexP].intitule)
+                    Text(horaires[indexH])
                         .fontWeight(.bold)
                         .font(.title3)
-                    Text(planningViewModel.postes[indexP].desc)
-                        .foregroundStyle(Color(.systemGray))
-                        ForEach(0..<horaires.count, id: \.self) { indexH in
-                            HStack {
-                                Text(self.horaires[indexH])
-                                Spacer()
-                                Text("+")
+                    ForEach(0..<planningViewModel.postes.count, id: \.self) { indexP in
+                        HStack {
+                            Text(planningViewModel.postes[indexP].intitule)
+                            Spacer()
+                            Button("-") {
+                                Task {
+                                    do {
+                                        let p = planningViewModel.postes[indexP].intitule
+                                        let c = self.horaires[indexH]
+                                        let i = authViewModel.getUid()
+                                        
+                                        let plageID = try await planningViewModel.desinscrisPoste(
+                                            creneau: c,
+                                            poste: p,
+                                            jour: jour,
+                                            id_user: i
+                                        )
+                                        
+                                        // Suppression de l'entrée dans le tableau local
+                                        planningViewModel.affectations = planningViewModel.affectations.filter { affectation in
+                                            affectation.id_plage != plageID || affectation.poste != p || affectation.id_user != i
+                                        }
+                                        planningViewModel.affectationsPersoParJour = planningViewModel.affectationsPersoParJour.filter { affectation in
+                                            affectation.id_plage != plageID || affectation.poste != p || affectation.id_user != i
+                                        }
+                                    }
+                                    catch {
+                                        print("Error: \(error)")
+                                    }
+                                }
                             }
-                        
+                            
+                            Button("+") {
+                                Task {
+                                    do {
+                                        let p = planningViewModel.postes[indexP].intitule
+                                        let c = self.horaires[indexH]
+                                        let i = authViewModel.getUid()
+                                        
+                                        let idplage = try await planningViewModel.inscrisPoste(
+                                            creneau: c,
+                                            poste: p,
+                                            jour: jour,
+                                            id_user: i
+                                        )
+                                        
+                                        // ajout le tableau local
+                                        let affectation = Affecter_poste(id_plage: idplage, id_user: i, poste: p)
+                                        planningViewModel.affectations.append(affectation)
+                                        planningViewModel.affectationsPersoParJour.append(affectation)
+                                    }
+                                    catch {
+                                        // Handle any errors here
+                                        print("Error: \(error)")
+                                    }
+                                }
+                            }
+                        }
+                        .padding()
                     }
                 }
                 .padding()

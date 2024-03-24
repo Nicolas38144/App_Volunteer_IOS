@@ -6,11 +6,10 @@
 //
 
 import SwiftUI
-import Firebase
-import FirebaseFirestoreSwift
 
 struct ConsultPlanningView: View {
     @EnvironmentObject private var planningViewModel: PlanningViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @State private var selectedJour: Int = 0
     
     var body: some View {
@@ -41,7 +40,7 @@ struct ConsultPlanningView: View {
     }
     
     func updateSelectedJour(_ index: Int) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let uid = authViewModel.getUid()
         planningViewModel.setAffectationsPersoParJour(jour: planningViewModel.jours[selectedJour], id_user: uid)
     }
 }

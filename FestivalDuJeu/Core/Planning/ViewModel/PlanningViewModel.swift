@@ -147,5 +147,55 @@ class PlanningViewModel: ObservableObject {
         }
         return poste
     }
+    
+    
+    func inscrisPoste(creneau: String, poste: String, jour: String, id_user:String) async throws -> String{
+        // récupère l'id plage correspondant
+        var idplage: String = ""
+        let plages = self.plages
+        for p in plages {
+            if (jour==p.jour && creneau==p.horaire){
+                idplage=p.id
+                break
+            }
+        }
+        
+        // ajout dans la bdd
+        let affecterPosteData: [String: Any] = [
+            "id_plage": idplage,
+            "poste": poste,
+            "id_user": id_user
+        ]
+        try await db.collection("affecter_poste").addDocument(data: affecterPosteData)
+        
+        return idplage
+    }
+    
+    
+    func desinscrisPoste(creneau: String, poste: String, jour: String, id_user: String) async throws -> String {
+            var idplage: String = ""
+            let plages = self.plages
+            for p in plages {
+                if jour == p.jour && creneau == p.horaire {
+                    idplage = p.id
+                    break
+                }
+            }
+            
+            let plageID = idplage
+
+            // Recherche et suppression du document correspondant dans la collection "affecter_poste"
+            let querySnapshot = try await db.collection("affecter_poste")
+                .whereField("id_plage", isEqualTo: plageID)
+                .whereField("poste", isEqualTo: poste)
+                .whereField("id_user", isEqualTo: id_user)
+                .getDocuments()
+
+            for document in querySnapshot.documents {
+                try await db.collection("affecter_poste").document(document.documentID).delete()
+            }
+
+            return plageID
+        }
 }
 

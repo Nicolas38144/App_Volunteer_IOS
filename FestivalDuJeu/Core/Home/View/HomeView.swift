@@ -18,17 +18,22 @@ struct HomeView: View {
             }
             else {
                 VStack {
-                    List {
-                        Section {
-                            VStack {
-                                Picker("Menu", selection: $menu) {
-                                    Text("Général").tag(0)
-                                    Text("Jeux").tag(1)
-                                }
-                                .pickerStyle(SegmentedPickerStyle())
-                            }
-                        }
-                        
+                    Text("Accueil")
+                        .foregroundColor(.black)
+                        .multilineTextAlignment(.leading)
+                        .padding(.leading)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .padding()
+                    
+                    Picker("Menu", selection: $menu) {
+                        Text("Général").tag(0)
+                        Text("Jeux").tag(1)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding()
+                
+                    VStack {
                         if menu == 1 {
                             GamesInfoView()
                                 .environmentObject(homeViewModel)
@@ -38,7 +43,8 @@ struct HomeView: View {
                                 .environmentObject(homeViewModel)
                         }
                     }
-                    .listStyle(.automatic)
+                    
+                    Spacer()
                 }
             }
         }
