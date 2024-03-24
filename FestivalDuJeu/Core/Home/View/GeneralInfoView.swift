@@ -10,6 +10,7 @@ import SwiftUI
 struct GeneralInfoView: View {
     
     @EnvironmentObject private var viewModel: HomeViewModel
+    @EnvironmentObject private var authviewModel: AuthViewModel
     
     var body: some View {
         Section {
@@ -20,7 +21,7 @@ struct GeneralInfoView: View {
                         .multilineTextAlignment(.leading)
                         .padding(.leading)
                     Spacer()
-                    Text("\(viewModel.nbUsers)")
+                    Text("\(authviewModel.nbUsers)")
                         .foregroundColor(.blue)
                         .multilineTextAlignment(.trailing)
                         .padding(.trailing)

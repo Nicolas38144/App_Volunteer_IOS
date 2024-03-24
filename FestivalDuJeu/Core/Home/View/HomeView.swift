@@ -9,11 +9,12 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @State private var menu: Int = 0
     
     var body: some View {
         Group {
-            if homeViewModel.games.isEmpty && homeViewModel.users.isEmpty {
+            if homeViewModel.games.isEmpty && authViewModel.users.isEmpty {
                 ProgressView("Chargement en cours...")
             }
             else {
@@ -41,6 +42,7 @@ struct HomeView: View {
                         else {
                             GeneralInfoView()
                                 .environmentObject(homeViewModel)
+                                .environmentObject(authViewModel)
                         }
                     }
                     

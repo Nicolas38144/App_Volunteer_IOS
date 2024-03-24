@@ -28,7 +28,7 @@ struct FestivalDuJeuApp: App {
                 .onAppear {
                     Task {
                         //await homeViewModel.fetchGames()
-                        await homeViewModel.fetchUsers()
+                        await authViewModel.fetchUsers()
                         
                         await planningViewModel.fetchPlages()
                         await planningViewModel.fetchPostes()

@@ -10,7 +10,6 @@ import Firebase
 
 class HomeViewModel: ObservableObject {
     @Published var games: [Game] = []
-    @Published var users: [User] = []
     
     private var db = Firestore.firestore()
     
@@ -34,10 +33,6 @@ class HomeViewModel: ObservableObject {
         Set(games.map { $0.Editeur }).count
     }
     
-    var nbUsers: Int {
-        users.count
-    }
-    
     func fetchGames() async {
         do {
             let querySnapshot = try await db.collection("games").getDocuments()
@@ -52,27 +47,6 @@ class HomeViewModel: ObservableObject {
             }
             DispatchQueue.main.async {
                 self.games = games
-            }
-        } catch {
-            print("Erreur lors de la récupération des jeux: \(error.localizedDescription)")
-        }
-    }
-
-    
-    func fetchUsers() async {
-        do {
-            let querySnapshot = try await db.collection("users").getDocuments()
-            let users = querySnapshot.documents.compactMap { document in
-                do {
-                    let user = try document.data(as: User.self)
-                    return user
-                } catch {
-                    print("Erreur lors de la conversion du jeu: \(error.localizedDescription)")
-                    return nil
-                }
-            }
-            DispatchQueue.main.async {
-                self.users = users
             }
         } catch {
             print("Erreur lors de la récupération des jeux: \(error.localizedDescription)")

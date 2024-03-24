@@ -18,6 +18,13 @@ protocol AuthFormProtocol {
 class AuthViewModel: ObservableObject {
     @Published var userSession: FirebaseAuth.User?
     @Published var currentuser: User?
+    @Published var users: [User] = []
+    
+    private var db = Firestore.firestore()
+    
+    var nbUsers: Int {
+        users.count
+    }
     
     init() {
         self.userSession = Auth.auth().currentUser
@@ -44,7 +51,7 @@ class AuthViewModel: ObservableObject {
             self.userSession = result.user
             let user = User(id: result.user.uid, prenom: prenom, nom: nom, email: email, nbParticipation: nbParticipation, hebergement: hebergement)
             let encodedUser = try Firestore.Encoder().encode(user)
-            try await Firestore.firestore().collection("users").document(user.id).setData(encodedUser)
+            try await db.collection("users").document(user.id).setData(encodedUser)
             await fetchUser()
             print("User created")
         }
@@ -71,7 +78,7 @@ class AuthViewModel: ObservableObject {
             ]
             
             // Mettez à jour les données de l'utilisateur dans Firestore
-            try await Firestore.firestore().collection("users").document(uid).setData(updatedUserData, merge: true)
+            try await db.collection("users").document(uid).setData(updatedUserData, merge: true)
             await fetchUser()
             print("User updated successfully")
         } catch {
@@ -94,14 +101,44 @@ class AuthViewModel: ObservableObject {
     
     func fetchUser() async {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        guard let snapshot = try? await Firestore.firestore().collection("users").document(uid).getDocument() else { return }
+        guard let snapshot = try? await db.collection("users").document(uid).getDocument() else { return }
         self.currentuser = try? snapshot.data(as: User.self)
         //print("DEBUG: current user is \(self.currentuser)")
+    }
+    
+    
+    func fetchUsers() async {
+        do {
+            let querySnapshot = try await db.collection("users").getDocuments()
+            let users = querySnapshot.documents.compactMap { document in
+                do {
+                    let user = try document.data(as: User.self)
+                    return user
+                } catch {
+                    print("Erreur lors de la conversion du l'utilisateur : \(error.localizedDescription)")
+                    return nil
+                }
+            }
+            DispatchQueue.main.async {
+                self.users = users
+            }
+        } catch {
+            print("Erreur lors de la récupération des utilisateurs: \(error.localizedDescription)")
+        }
     }
     
     
     func getUid() -> String {
         guard let uid = Auth.auth().currentUser?.uid else { return "" }
         return uid
+    }
+    
+    func getUserByID(id: String) -> User? {
+        var user: User? = nil
+        let users = self.users
+        for u in users {
+            if (u.id==id){ user = u }
+        }
+        return user
     }
 }

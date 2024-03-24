@@ -15,7 +15,6 @@ class PlanningViewModel: ObservableObject {
     @Published var jours: [String] = []
     
     @Published var affectationsPersoParJour: [Affecter_poste] = []
-    @Published var affectationsParHeureParPoste: [Affecter_poste] = []
     
     private var week = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
     
@@ -111,21 +110,17 @@ class PlanningViewModel: ObservableObject {
         self.affectationsPersoParJour = tabaffects
     }
     
-    /*
-    func setAffectationsParHeureParPoste(creneau: String, poste: String) {
+    
+    func getNbAffectationsParHeureParPoste(id_creneau: String, poste: String) -> Int{
         let affectations = self.affectations
-        let plages = self.plages
         var tabaffects: [Affecter_poste] = []
         for a in affectations {
-            for p in plages {
-                if (p.horaire == creneau && a.id_plage==p.id && a.poste==poste) {
-                    tabaffects.append(a)
-                }
+            if (a.id_plage == id_creneau && a.poste == poste) {
+                tabaffects.append(a)
             }
         }
-        self.affectationsParHeureParPoste = tabaffects
+        return tabaffects.count
     }
-     */
     
     
     func getAffectationsPersoParHeure(creneau: String) -> String {
@@ -160,7 +155,6 @@ class PlanningViewModel: ObservableObject {
             }
         }
         
-        // ajout dans la bdd
         let affecterPosteData: [String: Any] = [
             "id_plage": idplage,
             "poste": poste,
@@ -197,5 +191,27 @@ class PlanningViewModel: ObservableObject {
 
             return plageID
         }
+    
+    
+    func getIDPlage(creneau: String, jour: String) -> String {
+        var id: String = ""
+        let plages = self.plages
+        for p in plages {
+            if (p.horaire == creneau) && (p.jour == jour) { id = p.id }
+        }
+        return id
+    }
+    
+    
+    func checkIfRegistered(id_creneau: String, poste: String) -> Bool {
+        let affectations = self.affectationsPersoParJour
+        var tabaffects: [Affecter_poste] = []
+        for a in affectations {
+            if (a.id_plage == id_creneau && a.poste==poste) {
+                tabaffects.append(a)
+            }
+        }
+        return (tabaffects.count > 0)
+    }
 }
 

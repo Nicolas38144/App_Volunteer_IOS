@@ -22,60 +22,103 @@ struct RegistrationDayView: View {
                     Text(horaires[indexH])
                         .fontWeight(.bold)
                         .font(.title3)
+                    
                     ForEach(0..<planningViewModel.postes.count, id: \.self) { indexP in
                         HStack {
                             Text(planningViewModel.postes[indexP].intitule)
+                            Text(
+                                "("
+                                + String(planningViewModel.getNbAffectationsParHeureParPoste(
+                                    id_creneau: planningViewModel.getIDPlage(creneau: horaires[indexH], jour: jour),
+                                    poste: planningViewModel.postes[indexP].intitule)
+                                )
+                                + "/\(planningViewModel.postes[indexP].capacite))"
+                            )
+                            
                             Spacer()
-                            Button("-") {
-                                Task {
-                                    do {
-                                        let p = planningViewModel.postes[indexP].intitule
-                                        let c = self.horaires[indexH]
-                                        let i = authViewModel.getUid()
-                                        
-                                        let plageID = try await planningViewModel.desinscrisPoste(
-                                            creneau: c,
-                                            poste: p,
-                                            jour: jour,
-                                            id_user: i
+                            
+                            if (planningViewModel.checkIfRegistered(
+                                id_creneau: planningViewModel.getIDPlage(creneau: horaires[indexH], jour: jour),
+                                poste: planningViewModel.postes[indexP].intitule)
+                            ) == true {
+                                Button(action: {
+                                    Task {
+                                        do {
+                                            let p = planningViewModel.postes[indexP].intitule
+                                            let c = self.horaires[indexH]
+                                            let i = authViewModel.getUid()
+                                            
+                                            let plageID = try await planningViewModel.desinscrisPoste(
+                                                creneau: c,
+                                                poste: p,
+                                                jour: jour,
+                                                id_user: i
+                                            )
+                                            
+                                            // Suppression de l'entrée dans le tableau local
+                                            planningViewModel.affectations = planningViewModel.affectations.filter { affectation in
+                                                affectation.id_plage != plageID || affectation.poste != p || affectation.id_user != i
+                                            }
+                                            planningViewModel.affectationsPersoParJour = planningViewModel.affectationsPersoParJour.filter { affectation in
+                                                affectation.id_plage != plageID || affectation.poste != p || affectation.id_user != i
+                                            }
+                                        }
+                                        catch {
+                                            print("Error: \(error)")
+                                        }
+                                    }
+                                }) {
+                                    Text("-")
+                                        .foregroundColor(Color(.systemGray3))
+                                        .background(.white)
+                                        .font(.system(size:27))
+                                        .padding([.horizontal], 25)
+                                        .padding([.vertical], 4)
+                                        .cornerRadius(10)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(Color(.systemGray3), lineWidth: 1)
                                         )
                                         
-                                        // Suppression de l'entrée dans le tableau local
-                                        planningViewModel.affectations = planningViewModel.affectations.filter { affectation in
-                                            affectation.id_plage != plageID || affectation.poste != p || affectation.id_user != i
-                                        }
-                                        planningViewModel.affectationsPersoParJour = planningViewModel.affectationsPersoParJour.filter { affectation in
-                                            affectation.id_plage != plageID || affectation.poste != p || affectation.id_user != i
-                                        }
-                                    }
-                                    catch {
-                                        print("Error: \(error)")
-                                    }
                                 }
                             }
-                            
-                            Button("+") {
-                                Task {
-                                    do {
-                                        let p = planningViewModel.postes[indexP].intitule
-                                        let c = self.horaires[indexH]
-                                        let i = authViewModel.getUid()
-                                        
-                                        let idplage = try await planningViewModel.inscrisPoste(
-                                            creneau: c,
-                                            poste: p,
-                                            jour: jour,
-                                            id_user: i
-                                        )
-                                        
-                                        // ajout le tableau local
-                                        let affectation = Affecter_poste(id_plage: idplage, id_user: i, poste: p)
-                                        planningViewModel.affectations.append(affectation)
-                                        planningViewModel.affectationsPersoParJour.append(affectation)
-                                    }
-                                    catch {
-                                        // Handle any errors here
-                                        print("Error: \(error)")
+                            else {
+                                if (String(planningViewModel.getNbAffectationsParHeureParPoste(
+                                    id_creneau: planningViewModel.getIDPlage(creneau: horaires[indexH], jour: jour),
+                                    poste: planningViewModel.postes[indexP].intitule)
+                                ) != planningViewModel.postes[indexP].capacite) {
+                                    Button(action: {
+                                        Task {
+                                            do {
+                                                let p = planningViewModel.postes[indexP].intitule
+                                                let c = self.horaires[indexH]
+                                                let i = authViewModel.getUid()
+                                                
+                                                let idplage = try await planningViewModel.inscrisPoste(
+                                                    creneau: c,
+                                                    poste: p,
+                                                    jour: jour,
+                                                    id_user: i
+                                                )
+                                                
+                                                // ajout le tableau local
+                                                let affectation = Affecter_poste(id_plage: idplage, id_user: i, poste: p)
+                                                planningViewModel.affectations.append(affectation)
+                                                planningViewModel.affectationsPersoParJour.append(affectation)
+                                            }
+                                            catch {
+                                                // Handle any errors here
+                                                print("Error: \(error)")
+                                            }
+                                        }
+                                    }) {
+                                        Text("+")
+                                            .foregroundColor(.white)
+                                            .font(.system(size:27))
+                                            .padding([.horizontal], 25)
+                                            .padding([.vertical], 3)
+                                            .background(Color(.systemGray3))
+                                            .cornerRadius(10)
                                     }
                                 }
                             }
