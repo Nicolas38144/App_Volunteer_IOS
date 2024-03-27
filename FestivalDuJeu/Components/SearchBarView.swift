@@ -27,7 +27,7 @@ struct SearchBarView: View {
                             .padding(.leading, 8)
                     }
                 )
-            }
+        }
     }
 }
 

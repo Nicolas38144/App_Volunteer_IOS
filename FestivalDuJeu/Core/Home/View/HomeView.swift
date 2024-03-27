@@ -37,12 +37,12 @@ struct HomeView: View {
                     VStack {
                         if menu == 1 {
                             GamesInfoView()
-                                .environmentObject(homeViewModel)
+                                //.environmentObject(homeViewModel)
                         }
                         else {
                             GeneralInfoView()
-                                .environmentObject(homeViewModel)
-                                .environmentObject(authViewModel)
+                                //.environmentObject(homeViewModel)
+                                //.environmentObject(authViewModel)
                         }
                     }
                     

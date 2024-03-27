@@ -17,6 +17,7 @@ struct FestivalDuJeuApp: App {
     @StateObject var authViewModel = AuthViewModel()
     @StateObject var planningViewModel = PlanningViewModel()
     @StateObject var homeViewModel = HomeViewModel()
+    @StateObject var chatViewModel = ChatViewModel()
     
     
     var body: some Scene {
@@ -25,15 +26,18 @@ struct FestivalDuJeuApp: App {
                 .environmentObject(authViewModel)
                 .environmentObject(planningViewModel)
                 .environmentObject(homeViewModel)
+                .environmentObject(chatViewModel)
                 .onAppear {
                     Task {
-                        //await homeViewModel.fetchGames()
+                        await homeViewModel.fetchGames()
                         await authViewModel.fetchUsers()
                         
                         await planningViewModel.fetchPlages()
                         await planningViewModel.fetchPostes()
                         await planningViewModel.fetchAffectations()
                         planningViewModel.fetchJours()
+                        
+                        await chatViewModel.fetchAllMessages()
                     }
                 }
         }
