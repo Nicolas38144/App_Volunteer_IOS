@@ -24,39 +24,38 @@ struct ChatView: View {
             NavigationView {
                 VStack {
                     ScrollView {
-                        LazyVStack(spacing: 10) {
-                            ForEach(chatViewModel.listdMessages.indices, id: \.self) { index in
-                                let message = chatViewModel.listdMessages[index]
-                                // Determine la couleur de fond de la bulle de message en fonction de l'utilisateur
+                        LazyVStack(spacing: 0) {
+                            ForEach(chatViewModel.listMessages.indices, id: \.self) { index in
+                                let message = chatViewModel.listMessages[index]
                                 let bubbleColor = message.userId == authViewModel.getUid() ? Color.blue : Color.gray.opacity(0.5)
-                                HStack {
+                                VStack(alignment: .leading) {
                                     if message.userId != authViewModel.getUid() {
-                                        Text(message.prenom.prefix(1) + message.nom.prefix(1))
-                                            .font(.headline)
-                                            .foregroundColor(.white)
-                                            .frame(width: 40, height: 40)
-                                            .background(Color.blue)
-                                            .clipShape(Circle())
+                                        Text("\(message.prenom) \(message.nom)")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                            .padding(.horizontal)
+                                            .padding([.top], 12)
+                                        HStack {
+                                            Text(message.text)
+                                                .padding()
+                                                .foregroundColor(message.userId == authViewModel.getUid() ? .white : .primary)
+                                                .background(bubbleColor)
+                                                .clipShape(ChatBubble(isFromCurrentUser: message.userId == authViewModel.getUid()))
+                                                .padding([.bottom], 12)
+                                            Spacer()
+                                            
+                                        }
                                     }
                                     else {
-                                        Spacer()
-                                    }
-                                    Text(message.text)
-                                        .padding()
-                                        .foregroundColor(message.userId == authViewModel.getUid() ? .white : .primary)
-                                        .background(bubbleColor)
-                                        .clipShape(ChatBubble(isFromCurrentUser: message.userId == authViewModel.getUid()))
-                                        .padding(10)
-                                    if message.userId == authViewModel.getUid() {
-                                        Text(message.prenom.prefix(1) + message.nom.prefix(1))
-                                            .font(.headline)
-                                            .foregroundColor(.white)
-                                            .frame(width: 40, height: 40)
-                                            .background(Color.blue)
-                                            .clipShape(Circle())
-                                    }
-                                    else {
-                                        Spacer()
+                                        HStack {
+                                            Spacer()
+                                            Text(message.text)
+                                                .padding()
+                                                .foregroundColor(message.userId == authViewModel.getUid() ? .white : .primary)
+                                                .background(bubbleColor)
+                                                .clipShape(ChatBubble(isFromCurrentUser: message.userId == authViewModel.getUid()))
+                                                .padding([.bottom], 12)
+                                        }
                                     }
                                 }
                                 .padding(.horizontal)
@@ -88,6 +87,7 @@ struct ChatView: View {
             .onAppear {
                 chatViewModel.listenToChangesInDatabase()
             }
+            
         }
     }
 }

@@ -11,7 +11,7 @@ import Firebase
 class ChatViewModel: ObservableObject {
     
     private var db = Firestore.firestore()
-    @Published var listdMessages = [Message]()
+    @Published var listMessages = [Message]()
     
     init() {
         listenToChangesInDatabase()
@@ -34,7 +34,7 @@ class ChatViewModel: ObservableObject {
                 messages.append(msg)
             }
             listenToChangesInDatabase()
-            self.listdMessages = messages.reversed()
+            self.listMessages = messages.reversed()
         }
         catch {
             print("Erreur lors de la récupération des messages: \(error.localizedDescription)")
@@ -71,7 +71,7 @@ class ChatViewModel: ObservableObject {
                 let msg = Message(prenom: prenom, nom: nom, text: text, timestamp: timestamp.dateValue(), userId: userId)
                 messages.append(msg)
             }
-            strongSelf.listdMessages = messages.reversed()
+            strongSelf.listMessages = messages.reversed()
         }
     }
 }
